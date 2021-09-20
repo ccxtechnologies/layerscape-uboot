@@ -1611,6 +1611,23 @@ config TARGET_LS1046ARDB
 	  development platform that supports the QorIQ LS1046A
 	  Layerscape Architecture processor.
 
+config TARGET_LS1046ACCX
+	bool "Support ls1046accx"
+	select ARCH_LS1046A
+	select ARM64
+	select ARMV8_MULTIENTRY
+	select ARCH_SUPPORT_TFABOOT
+	select BOARD_EARLY_INIT_F
+	select BOARD_LATE_INIT
+	select DM_SPI_FLASH if DM_SPI
+	select POWER_MC34VR500
+	select SUPPORT_SPL
+	select FSL_DDR_BIST
+	select FSL_DDR_INTERACTIVE if !SPL
+	imply SCSI
+	help
+	  Support for the CCX Router Platform.
+
 config TARGET_LS1046AFRWY
 	bool "Support ls1046afrwy"
 	select ARCH_LS1046A
@@ -2002,6 +2019,7 @@ source "board/freescale/ls1021aiot/Kconfig"
 source "board/freescale/ls1046aqds/Kconfig"
 source "board/freescale/ls1043ardb/Kconfig"
 source "board/freescale/ls1046ardb/Kconfig"
+source "board/freescale/ls1046accx/Kconfig"
 source "board/freescale/ls1046afrwy/Kconfig"
 source "board/freescale/ls1012aqds/Kconfig"
 source "board/freescale/ls1012ardb/Kconfig"
