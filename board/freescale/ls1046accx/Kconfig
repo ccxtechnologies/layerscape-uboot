@@ -1,8 +1,8 @@
 
-if TARGET_LS1046CCX
+if TARGET_LS1046ACCX
 
 config SYS_BOARD
-	default "ls1046ccx"
+	default "ls1046accx"
 
 config SYS_VENDOR
 	default "freescale"
@@ -11,7 +11,7 @@ config SYS_SOC
 	default "fsl-layerscape"
 
 config SYS_CONFIG_NAME
-	default "ls1046ccx"
+	default "ls1046accx"
 
 if FSL_LS_PPA
 config SYS_LS_PPA_FW_ADDR

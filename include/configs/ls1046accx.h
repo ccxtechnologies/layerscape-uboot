@@ -4,8 +4,8 @@
  * Copyright 2019 NXP
  */
 
-#ifndef __LS1046CCX_H__
-#define __LS1046CCX_H__
+#ifndef __LS1046ACCX_H__
+#define __LS1046ACCX_H__
 
 #define SPL_NO_MISC
 #include "ls1046a_common.h"
@@ -13,6 +13,7 @@
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
 
+#define CONFIG_SYS_I2C_SPEED           100000
 
 #define CONFIG_LAYERSCAPE_NS_ACCESS
 
@@ -47,7 +48,6 @@
 
 #endif
 
-#define CONFIG_SYS_I2C_SPEED           100000
 
 /* QSPI device */
 #ifndef SPL_NO_QSPI
@@ -260,4 +260,4 @@
 
 #include <asm/fsl_secure_boot.h>
 
-#endif /* __LS1046CCX_H__ */
+#endif /* __LS1046ACCX_H__ */

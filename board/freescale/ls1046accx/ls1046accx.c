@@ -7,22 +7,27 @@
 #include <common.h>
 #include <i2c.h>
 #include <fdt_support.h>
+#include <fsl_ddr_sdram.h>
 #include <init.h>
 #include <asm/global_data.h>
 #include <asm/io.h>
 #include <asm/arch/clock.h>
 #include <asm/arch/fsl_serdes.h>
 #include <asm/arch/ppa.h>
+#include <asm/arch/fdt.h>
+#include <asm/arch/mmu.h>
+#include <asm/arch/cpu.h>
 #include <asm/arch/soc.h>
 #include <asm/arch-fsl-layerscape/fsl_icid.h>
-#include <hwconfig.h>
 #include <ahci.h>
+#include <hwconfig.h>
 #include <mmc.h>
 #include <scsi.h>
 #include <fm_eth.h>
 #include <fsl_csu.h>
 #include <fsl_esdhc.h>
-#include <power/mc34vr500_pmic.h>
+#include <fsl_ifc.h>
+#include <spl.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
