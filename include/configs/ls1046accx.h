@@ -47,6 +47,8 @@
 
 #endif
 
+#define CONFIG_SYS_I2C_SPEED           100000
+
 /* QSPI device */
 #ifndef SPL_NO_QSPI
 #ifdef CONFIG_FSL_QSPI
