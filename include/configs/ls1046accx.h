@@ -93,7 +93,7 @@
 	"crypto_key_kernel=\0" \
 	"crypto_key_dtb=\0" \
 	"hwconfig=fsl_ddr:bank_intlv=auto\0" \
-	"bootargs=earlycon=uart8250,mmio,0x21c0500 console=ttyS0,115200 ccx.firmware=" CCX_FIRMWARE_API_VERSION "\0"\
+	"bootargs=ccx.firmware=" CCX_FIRMWARE_API_VERSION "\0"\
 	"bootargs_enable_loader=setenv bootargs ${bootargs} loader\0" \
 	"bootargs_set_rootfs=setenv bootargs ${bootargs} root=/dev/sda${bootarg_rootpart} ro\0" \
 	"bootargs_set_console=setenv bootargs ${bootargs} console=ttyS0,${baudrate} earlycon=uart8250,mmio,0x21c0500\0" \
