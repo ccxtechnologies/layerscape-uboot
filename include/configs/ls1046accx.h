@@ -44,7 +44,7 @@
 #define SGMII_PHY2_ADDR			0xf
 
 #define SGMII_PHY3_ADDR			0x0
-#define SGMII_PHY4_ADDR			0x1
+#define SGMII_PHY4_ADDR			0x3
 
 #define FDT_SEQ_MACADDR_FROM_ENV
 

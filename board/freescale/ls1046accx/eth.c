@@ -19,6 +19,7 @@ int board_eth_init(struct bd_info *bis)
 #ifdef CONFIG_FMAN_ENET
 	int i;
 	struct memac_mdio_info dtsec_mdio_info;
+	struct memac_mdio_info tgec_mdio_info;
 	struct mii_dev *dev;
 	u32 srds_s1;
 	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
@@ -29,11 +30,17 @@ int board_eth_init(struct bd_info *bis)
 
 	dtsec_mdio_info.regs =
 		(struct memac_mdio_controller *)CONFIG_SYS_FM1_DTSEC_MDIO_ADDR;
-
 	dtsec_mdio_info.name = DEFAULT_FM_MDIO_NAME;
 
-	/* Register the 1G MDIO bus */
+	tgec_mdio_info.regs =
+		(struct memac_mdio_controller *)CONFIG_SYS_FM1_TGEC_MDIO_ADDR;
+	tgec_mdio_info.name = DEFAULT_FM_TGEC_MDIO_NAME;
+
+	/* Register the Main Card MDIO bus */
 	fm_memac_mdio_init(bis, &dtsec_mdio_info);
+
+	/* Register the Plugin Card MDIO bus */
+	fm_memac_mdio_init(bis, &tgec_mdio_info);
 
 	/* Set the two on-board RGMII PHY address */
 	fm_info_set_phy_address(FM1_DTSEC3, RGMII_PHY1_ADDR);
