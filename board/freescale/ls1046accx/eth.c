@@ -14,12 +14,13 @@
 
 #include "../common/fman.h"
 
+#define DEFAULT_FM_MDIO2_NAME "FSL_MDIO1"
+
 int board_eth_init(struct bd_info *bis)
 {
 #ifdef CONFIG_FMAN_ENET
 	int i;
-	struct memac_mdio_info dtsec_mdio_info;
-	struct memac_mdio_info tgec_mdio_info;
+	struct memac_mdio_info dtsec_mdio_info, dtsec_mdio2_info;
 	struct mii_dev *dev;
 	u32 srds_s1;
 	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
@@ -32,15 +33,19 @@ int board_eth_init(struct bd_info *bis)
 		(struct memac_mdio_controller *)CONFIG_SYS_FM1_DTSEC_MDIO_ADDR;
 	dtsec_mdio_info.name = DEFAULT_FM_MDIO_NAME;
 
-	tgec_mdio_info.regs =
+	dtsec_mdio2_info.regs =
 		(struct memac_mdio_controller *)CONFIG_SYS_FM1_TGEC_MDIO_ADDR;
-	tgec_mdio_info.name = DEFAULT_FM_TGEC_MDIO_NAME;
+	dtsec_mdio2_info.name = DEFAULT_FM_MDIO2_NAME;
 
 	/* Register the Main Card MDIO bus */
-	fm_memac_mdio_init(bis, &dtsec_mdio_info);
+	if (fm_memac_mdio_init(bis, &dtsec_mdio_info)) {
+		printf("Register MDIO1 Failed\n");
+	}
 
 	/* Register the Plugin Card MDIO bus */
-	fm_memac_mdio_init(bis, &tgec_mdio_info);
+	if (fm_memac_mdio_init(bis, &dtsec_mdio2_info)) {
+		printf("Register MDIO2 Failed\n");
+	}
 
 	/* Set the two on-board RGMII PHY address */
 	fm_info_set_phy_address(FM1_DTSEC3, RGMII_PHY1_ADDR);
@@ -68,7 +73,7 @@ int board_eth_init(struct bd_info *bis)
 	fm_info_set_mdio(FM1_DTSEC5, dev);
 	fm_info_set_mdio(FM1_DTSEC6, dev);
 
-	dev = miiphy_get_dev_by_name(DEFAULT_FM_TGEC_MDIO_NAME);
+	dev = miiphy_get_dev_by_name(DEFAULT_FM_MDIO2_NAME);
 	fm_info_set_mdio(FM1_DTSEC9, dev);
 	fm_info_set_mdio(FM1_DTSEC10, dev);
 
