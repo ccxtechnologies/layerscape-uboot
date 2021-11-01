@@ -44,6 +44,24 @@ int checkboard(void)
 	return 0;
 }
 
+/* configure GPIO1 19 and 21 as outputs, NOTE bit endianess flip  */
+#define MASK_ETH_PHY_RST 0x00001400
+
+void reset_plugin_phys(void)
+{
+	u32 val;
+	struct ccsr_gpio *pgpio = (void *)(GPIO1_BASE_ADDR);
+
+	val = in_be32(&pgpio->gpdir);
+	val |=  MASK_ETH_PHY_RST;
+	out_be32(&pgpio->gpdir, val);
+
+	val = in_be32(&pgpio->gpdat);
+	setbits_be32(&pgpio->gpdat, val | MASK_ETH_PHY_RST);
+
+	printf("Plugin PHY Reset: complete\n");
+}
+
 void config_floating_gpio_as_outputs(void)
 {
 	u32 val;
@@ -200,6 +218,7 @@ int misc_init_r(void)
 {
 	config_board_mux();
 	config_floating_gpio_as_outputs();
+	reset_plugin_phys();
 	return pld_enable_reset_req();
 }
 #endif
