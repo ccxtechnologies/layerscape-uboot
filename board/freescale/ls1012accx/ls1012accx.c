@@ -52,6 +52,14 @@ int board_early_init_f(void)
 	return 0;
 }
 
+#ifdef CONFIG_MISC_INIT_R
+int misc_init_r(void)
+{
+	/* TODO: pull in board config from the ls1046accx */
+	return 0;
+}
+#endif
+
 int board_init(void)
 {
 	struct ccsr_cci400 *cci = (struct ccsr_cci400 *)(CONFIG_SYS_IMMR +
