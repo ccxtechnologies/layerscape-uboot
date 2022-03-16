@@ -45,6 +45,67 @@ int dram_init(void)
 	return 0;
 }
 
+int pld_enable_reset_req(void)
+{
+	int err;
+	u32 rstrqsr1, rstrqmr1;
+	u8 banka_value;
+
+	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
+	rstrqmr1 = in_be32(&gur->rstrqmr1);
+	rstrqsr1 = in_be32(&gur->rstrqsr1);
+
+	if (rstrqsr1 & (~rstrqmr1)) {
+		printf("WARNING: RESET_REQ_B is active, the processor will"
+		       " be reset as soon as the PLD is configured.\n");
+		printf("RSTRQSR1 & RSTRQSM1: 0x%08x\n", rstrqsr1 & (~rstrqmr1));
+	}
+
+	/* enable the reset_req driven reset by programming
+	 * the GPIO Expander / PLD on IIC3 (Semtech SX1503) */
+
+	err = i2c_set_bus_num(0);
+	if (err < 0) {
+		printf("Failed to set I2C Bus to IIC1.\n");
+		return err;
+	}
+
+	i2c_reg_write(0x20, 0x23, 0x0a);
+	if (i2c_reg_read(0x20, 0x23) != 0x0a) {
+		printf("Failed to set PLD mode on bank a.\n");
+		return err;
+	}
+
+	i2c_reg_write(0x20, 0x21, 0x01);
+	if (i2c_reg_read(0x20, 0x21) != 0x01) {
+		printf("Failed to enable PLD on bank a.\n");
+		return err;
+	}
+
+	i2c_reg_write(0x20, 0x03, 0x00);
+	if (i2c_reg_read(0x20, 0x03) != 0x00) {
+		printf("Failed to set direction of bank a.\n");
+		return err;
+	}
+
+	i2c_reg_write(0x20, 0x02, 0x28);
+	if (i2c_reg_read(0x20, 0x28) != 0x00) {
+		printf("Failed to set direction on bank b.\n");
+		return err;
+	}
+
+	i2c_reg_write(0x20, 0x00, 0x49);
+	if ((i2c_reg_read(0x20, 0x00) & 0x49) != 0x49) {
+		printf("Failed to release resets on bank b.\n");
+		return err;
+	}
+
+	printf("Reset PLD: enabled\n");
+
+	return 0;
+}
+
+
 int board_early_init_f(void)
 {
 	fsl_lsch2_early_init_f();
@@ -55,8 +116,7 @@ int board_early_init_f(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-	/* TODO: pull in board config from the ls1046accx */
-	return 0;
+	return pld_enable_reset_req();
 }
 #endif
 
