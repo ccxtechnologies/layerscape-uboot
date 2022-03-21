@@ -32,7 +32,7 @@ DECLARE_GLOBAL_DATA_PTR;
 
 int checkboard(void)
 {
-	puts("Board: CCX Technologies DataPHY-NG ");
+	puts("Board: CCX Technologies DataPHY-NG\n");
 	return 0;
 }
 
