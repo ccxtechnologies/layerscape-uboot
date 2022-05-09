@@ -88,6 +88,7 @@
 		"ext4write scsi 0:1 ${loadaddr_ram} /${filename} ${filesize}\0" \
 	"sdcard_to_ram=ext4load mmc 0:1 ${loadaddr_ram} /${filename}\0" \
 	"sata_to_ram=ext4load scsi 0:1 ${loadaddr_ram} /${filename}\0" \
+	"usb_to_ram=ext4load usb 0 ${loadaddr_ram} /${filename}\0" \
 	"flash_to_ram=sf probe && sf read ${loadaddr_ram} ${loadaddr_flash} ${filesize}\0" \
 	"sdcard_to_flash=" \
 		"run sdcard_to_ram && " \
@@ -115,6 +116,14 @@
 	"sdcard_to_ram_kernel_sig=" \
 		"setenv filename Image.sig && " \
 		"setenv loadaddr_ram ${loadaddr_ram_kernel_header} && " \
+		"run sdcard_to_ram\0" \
+	"usb_to_ram_dtb=" \
+		"setenv filename linux.dtb && " \
+		"setenv loadaddr_ram ${loadaddr_ram_dtb} && " \
+		"run sdcard_to_ram\0" \
+	"usb_to_ram_kernel=" \
+		"setenv filename Image && " \
+		"setenv loadaddr_ram ${loadaddr_ram_kernel} && " \
 		"run sdcard_to_ram\0" \
 	"sata_to_ram_dtb=" \
 		"setenv filename boot-${bootarg_rootpart}/linux.dtb && " \
@@ -193,6 +202,13 @@
 		"run sata_to_ram_kernel && " \
 		"run sata_to_ram_kernel_sig && " \
 		"run crypto_verify_kernel && " \
+		"booti ${loadaddr_ram_kernel} - ${loadaddr_ram_dtb}\0" \
+	"boot_kernel_usb=" \
+		"run bootargs_set_rootfs && " \
+		"run bootargs_set_console && " \
+		"run bootargs_set_ccx && " \
+		"run usb_to_ram_dtb && " \
+		"run usb_to_ram_kernel && " \
 		"booti ${loadaddr_ram_kernel} - ${loadaddr_ram_dtb}\0" \
 	"system_set_ids=" \
 		"askenv serialnum \"Enter Serial Number [nnnn], ie. 1062 => \" 6 && " \
