@@ -212,13 +212,8 @@
 		"booti ${loadaddr_ram_kernel} - ${loadaddr_ram_dtb}\0" \
 	"system_set_ids=" \
 		"askenv serialnum \"Enter Serial Number [nnnn], ie. 1062 => \" 6 && " \
-		"askenv ethaddr \"Enter MAC Address 1 [xx:xx:xx:xx:xx:xx], ie. 84:8B:CD:20:00:C8 => \" 17 && " \
-		"askenv eth1addr \"Enter MAC Address 2 [xx:xx:xx:xx:xx:xx], ie. 84:8B:CD:20:00:C9 => \" 17 && " \
-		"askenv eth2addr \"Enter MAC Address 3 [xx:xx:xx:xx:xx:xx], ie. 84:8B:CD:20:00:CA => \" 17 && " \
-		"askenv eth3addr \"Enter MAC Address 4 [xx:xx:xx:xx:xx:xx], ie. 84:8B:CD:20:00:CB => \" 17 && " \
-		"askenv eth4addr \"Enter MAC Address 5 [xx:xx:xx:xx:xx:xx], ie. 84:8B:CD:20:00:CD (Press Return if N/A) => \" 17 && " \
-		"askenv eth5addr \"Enter MAC Address 6 [xx:xx:xx:xx:xx:xx], ie. 84:8B:CD:20:00:CE (Press Return if N/A) => \" 17 && " \
-		"env export -t ${loadaddr_ram_dec} serialnum ethaddr eth1addr eth2addr eth3addr eth4addr eth5addr && " \
+		"askenv ethaddr \"Enter MAC Address [xx:xx:xx:xx:xx:xx], ie. 84:8B:CD:20:00:C8 => \" 17 && " \
+		"env export -t ${loadaddr_ram_dec} serialnum ethaddr && " \
 		"setenv filesize 0x3d0 && " \
 		"run crypto_encrypt && " \
 		"setenv loadaddr_ram ${loadaddr_ram_enc} && " \
@@ -230,7 +225,7 @@
 		"setenv filesize 0x400 && " \
 		"run flash_to_ram && " \
 		"run crypto_decrypt && " \
-		"env import -t ${loadaddr_ram_dec} ${filesize} serialnum ethaddr eth1addr eth2addr eth3addr eth4addr eth5addr\0" \
+		"env import -t ${loadaddr_ram_dec} ${filesize} serialnum ethaddr\0" \
 	"system_load=" \
 		"run system_set_ids && " \
 		"if run sdcard_to_flash_pbl && run sdcard_to_flash_fib; then " \
