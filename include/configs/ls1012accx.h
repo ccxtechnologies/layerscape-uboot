@@ -120,11 +120,11 @@
 	"usb_to_ram_dtb=" \
 		"setenv filename linux.dtb && " \
 		"setenv loadaddr_ram ${loadaddr_ram_dtb} && " \
-		"run sdcard_to_ram\0" \
+		"run usb_to_ram\0" \
 	"usb_to_ram_kernel=" \
 		"setenv filename Image && " \
 		"setenv loadaddr_ram ${loadaddr_ram_kernel} && " \
-		"run sdcard_to_ram\0" \
+		"run usb_to_ram\0" \
 	"sata_to_ram_dtb=" \
 		"setenv filename boot-${bootarg_rootpart}/linux.dtb && " \
 		"setenv loadaddr_ram ${loadaddr_ram_dtb} && " \
