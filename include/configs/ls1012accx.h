@@ -17,25 +17,25 @@
 #define CCX_FIRMWARE_API_VERSION	"2"
 
 /* DDR */
-#define CONFIG_DIMM_SLOTS_PER_CTLR	1
+#define CONFIG_DIMM_SLOTS_PER_CTLR		1
 #define CONFIG_CHIP_SELECTS_PER_CTRL	1
-#define CONFIG_SYS_SDRAM_SIZE		0x40000000
-
-/*  MMC  */
-#ifdef CONFIG_MMC
-#define CONFIG_SYS_FSL_MMC_HAS_CAPBLT_VS33
-#endif
+#define CONFIG_SYS_SDRAM_SIZE			0x40000000
 
 #define CONFIG_PCIE1		/* PCIE controller 1 */
 
 #define CONFIG_PCI_SCAN_SHOW
 
+#undef QSPI_NOR_BOOTCOMMAND
 #if defined(CONFIG_FUSE_MESSAGE)
-#define SD_BOOTCOMMAND "run system_fuse"
+#define QSPI_NOR_BOOTCOMMAND "run system_fuse"
 #else
-#define SD_BOOTCOMMAND "run system_load"
-#endif
+#if defined(SYSTEMX_LOADER)
+#define QSPI_NOR_BOOTCOMMAND "run system_load"
+#else
 #define QSPI_NOR_BOOTCOMMAND "run system_boot"
+#endif
+#endif
+
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"crypto_set_key=" \
@@ -86,37 +86,20 @@
 	"ram_to_sata=" \
 		"scsi rescan && " \
 		"ext4write scsi 0:1 ${loadaddr_ram} /${filename} ${filesize}\0" \
-	"sdcard_to_ram=ext4load mmc 0:1 ${loadaddr_ram} /${filename}\0" \
 	"sata_to_ram=ext4load scsi 0:1 ${loadaddr_ram} /${filename}\0" \
 	"usb_to_ram=ext4load usb 0 ${loadaddr_ram} /${filename}\0" \
 	"flash_to_ram=sf probe && sf read ${loadaddr_ram} ${loadaddr_flash} ${filesize}\0" \
-	"sdcard_to_flash=" \
-		"run sdcard_to_ram && " \
+	"usb_to_flash=" \
+		"run usb_to_ram && " \
 		"run ram_to_flash\0" \
-	"sdcard_to_flash_pbl=" \
+	"usb_to_flash_pbl=" \
 		"setenv filename bl2.pbl && " \
 		"setenv loadaddr_flash ${loadaddr_flash_bl2} && " \
-		"run sdcard_to_flash\0" \
-	"sdcard_to_flash_fib=" \
+		"run usb_to_flash\0" \
+	"usb_to_flash_fib=" \
 		"setenv filename fip.bin && " \
 		"setenv loadaddr_flash ${loadaddr_flash_fip} && " \
-		"run sdcard_to_flash\0" \
-	"sdcard_to_ram_dtb=" \
-		"setenv filename linux.dtb && " \
-		"setenv loadaddr_ram ${loadaddr_ram_dtb} && " \
-		"run sdcard_to_ram\0" \
-	"sdcard_to_ram_kernel=" \
-		"setenv filename Image && " \
-		"setenv loadaddr_ram ${loadaddr_ram_kernel} && " \
-		"run sdcard_to_ram\0" \
-	"sdcard_to_ram_dtb_sig=" \
-		"setenv filename linux.dtb.sig && " \
-		"setenv loadaddr_ram ${loadaddr_ram_dtb_header} && " \
-		"run sdcard_to_ram\0" \
-	"sdcard_to_ram_kernel_sig=" \
-		"setenv filename Image.sig && " \
-		"setenv loadaddr_ram ${loadaddr_ram_kernel_header} && " \
-		"run sdcard_to_ram\0" \
+		"run usb_to_flash\0" \
 	"usb_to_ram_dtb=" \
 		"setenv filename linux.dtb && " \
 		"setenv loadaddr_ram ${loadaddr_ram_dtb} && " \
@@ -124,6 +107,14 @@
 	"usb_to_ram_kernel=" \
 		"setenv filename Image && " \
 		"setenv loadaddr_ram ${loadaddr_ram_kernel} && " \
+		"run usb_to_ram\0" \
+	"usb_to_ram_dtb_sig=" \
+		"setenv filename linux.dtb.sig && " \
+		"setenv loadaddr_ram ${loadaddr_ram_dtb_header} && " \
+		"run usb_to_ram\0" \
+	"usb_to_ram_kernel_sig=" \
+		"setenv filename Image.sig && " \
+		"setenv loadaddr_ram ${loadaddr_ram_kernel_header} && " \
 		"run usb_to_ram\0" \
 	"sata_to_ram_dtb=" \
 		"setenv filename boot-${bootarg_rootpart}/linux.dtb && " \
@@ -181,15 +172,15 @@
 		"fi\0" \
 	"boot_kernel_loader=" \
 		"run bootargs_enable_loader && " \
-		"run boot_kernel_sdcard\0" \
-	"boot_kernel_sdcard=" \
+		"run boot_kernel_usb\0" \
+	"boot_kernel_usb=" \
 		"run bootargs_set_console && " \
 		"run bootargs_set_ccx && " \
-		"run sdcard_to_ram_dtb && " \
-		"run sdcard_to_ram_dtb_sig && " \
+		"run usb_to_ram_dtb && " \
+		"run usb_to_ram_dtb_sig && " \
 		"run crypto_verify_dtb && " \
-		"run sdcard_to_ram_kernel && " \
-		"run sdcard_to_ram_kernel_sig && " \
+		"run usb_to_ram_kernel && " \
+		"run usb_to_ram_kernel_sig && " \
 		"run crypto_verify_kernel && " \
 		"booti ${loadaddr_ram_kernel} - ${loadaddr_ram_dtb}\0" \
 	"boot_kernel_sata=" \
@@ -202,13 +193,6 @@
 		"run sata_to_ram_kernel && " \
 		"run sata_to_ram_kernel_sig && " \
 		"run crypto_verify_kernel && " \
-		"booti ${loadaddr_ram_kernel} - ${loadaddr_ram_dtb}\0" \
-	"boot_kernel_usb=" \
-		"run bootargs_set_rootfs && " \
-		"run bootargs_set_console && " \
-		"run bootargs_set_ccx && " \
-		"run usb_to_ram_dtb && " \
-		"run usb_to_ram_kernel && " \
 		"booti ${loadaddr_ram_kernel} - ${loadaddr_ram_dtb}\0" \
 	"system_set_ids=" \
 		"askenv serialnum \"Enter Serial Number [nnnn], ie. 1062 => \" 6 && " \
@@ -228,7 +212,8 @@
 		"env import -t ${loadaddr_ram_dec} ${filesize} serialnum ethaddr\0" \
 	"system_load=" \
 		"run system_set_ids && " \
-		"if run sdcard_to_flash_pbl && run sdcard_to_flash_fib; then " \
+		"usb reset; " \
+		"if run usb_to_flash_pbl && run usb_to_flash_fib; then " \
 			"run boot_kernel_loader; esbc_halt; " \
 		"else " \
 			"echo Failed to find file firmware ${filename} && esbc_halt; " \
