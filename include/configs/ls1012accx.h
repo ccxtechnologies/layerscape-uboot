@@ -71,7 +71,9 @@
 	"loadaddr_ram_enc=0xa0800000\0" \
 	"loadaddr_flash=0x0\0" \
 	"loadaddr_flash_bl2=0x000000\0" \
+	"loadaddr_flash_bl2_sec=0x80000\0" \
 	"loadaddr_flash_fip=0x100000\0" \
+	"loadaddr_flash_fip_sec=0x400000\0" \
 	"loadaddr_flash_ids=0x500000\0" \
 	"loadaddr_ram_kernel=0xa0800000\0" \
 	"loadaddr_ram_dtb=0xa0000000\0" \
@@ -132,6 +134,17 @@
 		"setenv filename boot-${bootarg_rootpart}/Image.sig && " \
 		"setenv loadaddr_ram ${loadaddr_ram_kernel_header} && " \
 		"run sata_to_ram\0" \
+	"load_sec_bootloader=" \
+		"setenv loadaddr_flash ${loadaddr_flash_bl2_sec} && " \
+		"setenv filesize 0x50000 && " \
+		"run flash_to_ram && " \
+		"setenv loadaddr_flash ${loadaddr_flash_bl2} && " \
+		"run ram_to_flash && " \
+		"setenv loadaddr_flash ${loadaddr_flash_fip_sec} && " \
+		"setenv filesize 0x200000 && " \
+		"run flash_to_ram && " \
+		"setenv loadaddr_flash ${loadaddr_flash_fip} && " \
+		"run ram_to_flash && " \
 	"set_rootpart_from_defaultrootpart=" \
 		"if test \"${defaultrootpart}\" = \"2\" ; then " \
 			"setenv bootarg_rootpart 2; " \
