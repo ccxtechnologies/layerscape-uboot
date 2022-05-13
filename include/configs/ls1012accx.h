@@ -247,7 +247,8 @@
 		"run boot_kernel_sata; " \
 		"esbc_halt;\0" \
 	"system_fuse=" \
-		"echo !!! FUSES BURNED !!!\0"
+		"echo !!! FUSES BURNED, LOADING SIGNED BOOTLOADER !!!; " \
+		"run load_sec_bootloader;\0"
 
 #include <asm/fsl_secure_boot.h>
 
