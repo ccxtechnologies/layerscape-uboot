@@ -76,6 +76,11 @@
 #define SD_NOR_BOOTCOMMAND "run system_load"
 #undef QSPI_NOR_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "run system_load"
+#elif defined(CONFIG_SYSTEMX_LOADER_NONE)
+#undef SD_BOOTCOMMAND
+#define SD_BOOTCOMMAND "echo Hardware Development Mode"
+#undef QSPI_NOR_BOOTCOMMAND
+#define QSPI_NOR_BOOTCOMMAND "echo Hardware Development Mode"
 #else
 #undef SD_NOR_BOOTCOMMAND
 #define SD_NOR_BOOTCOMMAND "run system_boot"

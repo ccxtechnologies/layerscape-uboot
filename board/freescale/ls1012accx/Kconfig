@@ -25,6 +25,8 @@ choice SYSTEMX_LOADER
 		bool "Fuses burned in ATF"
 	config SYSTEMX_LOADER_LOAD
 		bool "Load SystemX from Media"
+	config SYSTEMX_LOADER_NONE
+		bool "Don't boot a kernel"
 endchoice
 
 if CHAIN_OF_TRUST

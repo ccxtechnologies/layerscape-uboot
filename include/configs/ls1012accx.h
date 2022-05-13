@@ -31,6 +31,9 @@
 #elif defined(CONFIG_SYSTEMX_LOADER_LOAD)
 #undef QSPI_NOR_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "run system_load"
+#elif defined(CONFIG_SYSTEMX_LOADER_NONE)
+#undef QSPI_NOR_BOOTCOMMAND
+#define QSPI_NOR_BOOTCOMMAND "echo Hardware Development Mode"
 #else
 #undef QSPI_NOR_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "run system_boot"
