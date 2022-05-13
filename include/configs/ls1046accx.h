@@ -65,12 +65,25 @@
 #endif
 #endif
 
-#if defined(CONFIG_FUSE_MESSAGE)
-#define SD_BOOTCOMMAND "run system_fuse"
+
+#if defined(CONFIG_SYSTEMX_LOADER_FUSES)
+#undef SD_NOR_BOOTCOMMAND
+#define SD_NOR_BOOTCOMMAND "run system_fuse"
+#undef QSPI_NOR_BOOTCOMMAND
+#define QSPI_NOR_BOOTCOMMAND "run system_fuse"
+#elif defined(CONFIG_SYSTEMX_LOADER_LOAD)
+#undef SD_NOR_BOOTCOMMAND
+#define SD_NOR_BOOTCOMMAND "run system_load"
+#undef QSPI_NOR_BOOTCOMMAND
+#define QSPI_NOR_BOOTCOMMAND "run system_load"
 #else
-#define SD_BOOTCOMMAND "run system_load"
-#endif
+#undef SD_NOR_BOOTCOMMAND
+#define SD_NOR_BOOTCOMMAND "run system_boot"
+#undef QSPI_NOR_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "run system_boot"
+#endif
+
+
 #undef CONFIG_EXTRA_ENV_SETTINGS
 #define CONFIG_EXTRA_ENV_SETTINGS \
 	"crypto_set_key=" \

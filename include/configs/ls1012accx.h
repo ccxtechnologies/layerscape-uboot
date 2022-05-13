@@ -25,15 +25,15 @@
 
 #define CONFIG_PCI_SCAN_SHOW
 
+#if defined(CONFIG_SYSTEMX_LOADER_FUSES)
 #undef QSPI_NOR_BOOTCOMMAND
-#if defined(CONFIG_FUSE_MESSAGE)
 #define QSPI_NOR_BOOTCOMMAND "run system_fuse"
-#else
-#if defined(SYSTEMX_LOADER)
+#elif defined(CONFIG_SYSTEMX_LOADER_LOAD)
+#undef QSPI_NOR_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "run system_load"
 #else
+#undef QSPI_NOR_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "run system_boot"
-#endif
 #endif
 
 #undef CONFIG_EXTRA_ENV_SETTINGS

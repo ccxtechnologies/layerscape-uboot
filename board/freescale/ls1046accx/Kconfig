@@ -19,6 +19,17 @@ config SYS_LS_PPA_FW_ADDR
 	default 0x40400000 if SYS_LS_PPA_FW_IN_XIP && QSPI_BOOT
 	default 0x400000 if SYS_LS_PPA_FW_IN_MMC || SYS_LS_PPA_FW_IN_NAND
 
+choice SYSTEMX_LOADER
+	prompt "SystemX Loader Srcipt"
+	default SYSTEMX_LOADER_BOOT
+	config SYSTEMX_LOADER_BOOT
+		bool "Normal Boot"
+	config SYSTEMX_LOADER_FUSES
+		bool "Fuses burned in ATF"
+	config SYSTEMX_LOADER_LOAD
+		bool "Load SystemX from Media"
+endchoice
+
 if CHAIN_OF_TRUST
 config SYS_LS_PPA_ESBC_ADDR
 	hex "PPA Firmware HDR Addr"
