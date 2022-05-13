@@ -93,7 +93,7 @@
 		"ext4write scsi 0:1 ${loadaddr_ram} /${filename} ${filesize}\0" \
 	"sata_to_ram=ext4load scsi 0:1 ${loadaddr_ram} /${filename}\0" \
 	"usb_to_ram=ext4load usb 0 ${loadaddr_ram} /${filename}\0" \
-	"flash_to_ram=sf probe && sf read ${loadaddr_ram} ${loadaddr_flash} ${filesize}\0" \
+	"flash_to_ram=sf read ${loadaddr_ram} ${loadaddr_flash} ${filesize}\0" \
 	"usb_to_flash=" \
 		"run usb_to_ram && " \
 		"run ram_to_flash\0" \
@@ -138,16 +138,21 @@
 		"setenv loadaddr_ram ${loadaddr_ram_kernel_header} && " \
 		"run sata_to_ram\0" \
 	"load_sec_bootloader=" \
+		"sf probe && " \
 		"setenv loadaddr_flash ${loadaddr_flash_bl2_sec} && " \
 		"setenv filesize 0x50000 && " \
 		"run flash_to_ram && " \
 		"setenv loadaddr_flash ${loadaddr_flash_bl2} && " \
+		"echo Overwriting Stage 1 Bootloader, not not turn off power! && " \
 		"run ram_to_flash && " \
 		"setenv loadaddr_flash ${loadaddr_flash_fip_sec} && " \
 		"setenv filesize 0x200000 && " \
 		"run flash_to_ram && " \
 		"setenv loadaddr_flash ${loadaddr_flash_fip} && " \
+		"echo Overwriting Stage 2 Bootloader, not not turn off power! && " \
 		"run ram_to_flash && " \
+		"echo Bootloader Overwritten, Rebooting System&& " \
+		"reset\0" \
 	"set_rootpart_from_defaultrootpart=" \
 		"if test \"${defaultrootpart}\" = \"2\" ; then " \
 			"setenv bootarg_rootpart 2; " \
