@@ -246,9 +246,15 @@
 		"run env_to_sata_rootpart; " \
 		"run boot_kernel_sata; " \
 		"esbc_halt;\0" \
+	"fuse_burn=i2c mw 08 6c 10 && reset\0" \
 	"system_fuse=" \
-		"echo !!! FUSES BURNED, LOADING SIGNED BOOTLOADER !!!; " \
-		"run load_sec_bootloader;\0"
+		"if test \"${povdd}\" = \"enabled\"; " \
+		"then echo !!! FUSES BURNED, LOADING SIGNED BOOTLOADER !!!; " \
+		"run load_sec_bootloader;" \
+		"fi; " \
+		"if test \"${povdd}\" = \"disabled\"; " \
+		"then echo !!! POVDD LDO is disabled, run fuse_burn to enable and burn fuses !!!; " \
+		"fi\0"
 
 #include <asm/fsl_secure_boot.h>
 

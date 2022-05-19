@@ -49,7 +49,6 @@ int pld_enable_reset_req(void)
 {
 	int err;
 	u32 rstrqsr1, rstrqmr1;
-	u8 banka_value;
 
 	struct ccsr_gur *gur = (void *)(CONFIG_SYS_FSL_GUTS_ADDR);
 	rstrqmr1 = in_be32(&gur->rstrqmr1);
@@ -105,6 +104,37 @@ int pld_enable_reset_req(void)
 	return 0;
 }
 
+int read_povdd_state(void)
+{
+	int ret;
+
+	ret = i2c_set_bus_num(0);
+	if (ret < 0) {
+		printf("Failed to set I2C Bus to IIC1.\n");
+		return ret;
+	}
+
+	if (i2c_reg_read(0x08, 0x6c) == 0x10) {
+		printf("Fuse POVDD: enabled\n");
+
+		ret = env_set("povdd", "enabled");
+		if (ret) {
+			printf("Failed to set povdd to enabled: ret = %d\n", ret);
+			return ret;
+		}
+	} else {
+		printf("Fuse POVDD: disabled\n");
+
+		ret = env_set("povdd", "disabled");
+		if (ret) {
+			printf("Failed to set povdd to disabled: ret = %d\n", ret);
+			return ret;
+		}
+	}
+
+	return 0;
+}
+
 
 int board_early_init_f(void)
 {
@@ -116,7 +146,17 @@ int board_early_init_f(void)
 #ifdef CONFIG_MISC_INIT_R
 int misc_init_r(void)
 {
-	return pld_enable_reset_req();
+	if (pld_enable_reset_req()) {
+		printf("Failed to enable reset PLD\n");
+		return -1;
+	}
+
+	if (read_povdd_state()) {
+		printf("Failed to get povdd state\n");
+		return -1;
+	}
+
+	return 0;
 }
 #endif
 
