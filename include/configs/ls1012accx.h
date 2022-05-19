@@ -234,7 +234,7 @@
 		"env import -t ${loadaddr_ram_dec} ${filesize} serialnum ethaddr eth1addr\0" \
 	"system_load=" \
 		"run system_set_ids && " \
-		"usb reset; " \
+		"usb reset && " \
 		"if run usb_to_flash_pbl && run usb_to_flash_fib; then " \
 			"run boot_kernel_loader; esbc_halt; " \
 		"else " \
