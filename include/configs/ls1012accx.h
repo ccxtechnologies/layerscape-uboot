@@ -217,8 +217,9 @@
 		"booti ${loadaddr_ram_kernel} - ${loadaddr_ram_dtb}\0" \
 	"system_set_ids=" \
 		"askenv serialnum \"Enter Serial Number [nnnn], ie. 1062 => \" 6 && " \
-		"askenv ethaddr \"Enter MAC Address [xx:xx:xx:xx:xx:xx], ie. 84:8B:CD:20:00:C8 => \" 17 && " \
-		"env export -t ${loadaddr_ram_dec} serialnum ethaddr && " \
+		"askenv ethaddr \"Enter MAC Address 1 [xx:xx:xx:xx:xx:xx], ie. 84:8B:CD:20:00:C8 => \" 17 && " \
+		"askenv eth1addr \"Enter MAC Address 2 [xx:xx:xx:xx:xx:xx], ie. 84:8B:CD:20:00:C9 => \" 17 && " \
+		"env export -t ${loadaddr_ram_dec} serialnum ethaddr eth1addr && " \
 		"setenv filesize 0x3d0 && " \
 		"run crypto_encrypt && " \
 		"setenv loadaddr_ram ${loadaddr_ram_enc} && " \
@@ -230,7 +231,7 @@
 		"setenv filesize 0x400 && " \
 		"run flash_to_ram && " \
 		"run crypto_decrypt && " \
-		"env import -t ${loadaddr_ram_dec} ${filesize} serialnum ethaddr\0" \
+		"env import -t ${loadaddr_ram_dec} ${filesize} serialnum ethaddr eth1addr\0" \
 	"system_load=" \
 		"run system_set_ids && " \
 		"usb reset; " \
