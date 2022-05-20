@@ -232,9 +232,9 @@
 		"run crypto_decrypt && " \
 		"env import -t ${loadaddr_ram_dec} ${filesize} serialnum ethaddr eth1addr\0" \
 	"system_load=" \
+		"sf probe && " \
 		"run system_set_ids && " \
 		"usb reset && " \
-		"sf probe && " \
 		"if run usb_to_flash_pbl && run usb_to_flash_fib; then " \
 			"run boot_kernel_loader; esbc_halt; " \
 		"else " \
