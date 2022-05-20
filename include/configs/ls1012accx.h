@@ -14,7 +14,7 @@
 /* This should be incremented to force a firmware update, it isn't a
  * version inidicator but a compatibility indicator, this shouldn't
  * be updated on changes that don't break backwards compatibility */
-#define CCX_FIRMWARE_API_VERSION	"2"
+#define CCX_FIRMWARE_API_VERSION	"3"
 
 /* DDR */
 #define CONFIG_DIMM_SLOTS_PER_CTLR		1
@@ -85,7 +85,6 @@
 	"loadaddr_ram_dtb_header=0x80100000\0" \
 	"filename_onetimeenv=uEnv.onetime.txt\0" \
 	"ram_to_flash=" \
-		"sf probe && " \
 		"sf erase ${loadaddr_flash} +${filesize} && " \
 		"sf write ${loadaddr_ram} ${loadaddr_flash} ${filesize}\0" \
 	"ram_to_sata=" \
@@ -235,12 +234,14 @@
 	"system_load=" \
 		"run system_set_ids && " \
 		"usb reset && " \
+		"sf probe && " \
 		"if run usb_to_flash_pbl && run usb_to_flash_fib; then " \
 			"run boot_kernel_loader; esbc_halt; " \
 		"else " \
 			"echo Failed to find file firmware ${filename} && esbc_halt; " \
 		"fi\0" \
 	"system_boot=" \
+		"sf probe && " \
 		"run system_get_ids; " \
 		"scsi rescan; " \
 		"run sata_to_env_rootpart; " \
