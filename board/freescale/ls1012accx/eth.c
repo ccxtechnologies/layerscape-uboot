@@ -52,31 +52,16 @@ int pfe_eth_board_init(struct udevice *dev)
 	pfe_set_mdio(priv->gemac_port,
 		     miiphy_get_dev_by_name(DEFAULT_PFE_MDIO_NAME));
 
-	if (!priv->gemac_port) {
-		/* MAC1 */
-		pfe_set_phy_address_mode(priv->gemac_port,
-					CONFIG_PFE_EMAC1_PHY_ADDR,
-					PHY_INTERFACE_MODE_SGMII);
+	if (priv->gemac_port == 0) {
+		printf("Only support gemac_port 1, not using SGMII interface\n");
+		return -1;
 	} else {
-		/* MAC2 */
 		pfe_set_phy_address_mode(priv->gemac_port,
 					CONFIG_PFE_EMAC2_PHY_ADDR,
 					PHY_INTERFACE_MODE_RGMII_ID);
 	}
 	return 0;
 }
-
-static struct pfe_eth_pdata pfe_pdata0 = {
-	.pfe_eth_pdata_mac = {
-		.iobase = (phys_addr_t)EMAC1_BASE_ADDR,
-		.phy_interface = 0,
-	},
-
-	.pfe_ddr_addr = {
-		.ddr_pfe_baseaddr = (void *)CONFIG_DDR_PFE_BASEADDR,
-		.ddr_pfe_phys_baseaddr = CONFIG_DDR_PFE_PHYS_BASEADDR,
-	},
-};
 
 static struct pfe_eth_pdata pfe_pdata1 = {
 	.pfe_eth_pdata_mac = {
@@ -88,11 +73,6 @@ static struct pfe_eth_pdata pfe_pdata1 = {
 		.ddr_pfe_baseaddr = (void *)CONFIG_DDR_PFE_BASEADDR,
 		.ddr_pfe_phys_baseaddr = CONFIG_DDR_PFE_PHYS_BASEADDR,
 	},
-};
-
-U_BOOT_DRVINFO(ls1012a_pfe0) = {
-	.name = "pfe_eth",
-	.plat = &pfe_pdata0,
 };
 
 U_BOOT_DRVINFO(ls1012a_pfe1) = {

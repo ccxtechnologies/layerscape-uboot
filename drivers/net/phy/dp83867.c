@@ -257,6 +257,7 @@ static int dp83867_of_init(struct phy_device *phydev)
 	dp83867->rx_id_delay = DP83867_RGMIIDCTL_2_25_NS;
 	dp83867->tx_id_delay = DP83867_RGMIIDCTL_2_75_NS;
 	dp83867->fifo_depth = DEFAULT_FIFO_DEPTH;
+	dp83867->rxctrl_strap_quirk = true;
 	dp83867->io_impedance = -EINVAL;
 
 	return 0;

@@ -194,6 +194,7 @@
 		"run bootargs_enable_loader && " \
 		"run boot_kernel_usb\0" \
 	"boot_kernel_usb=" \
+		"pfe stop && " \
 		"run bootargs_set_console && " \
 		"run bootargs_set_ccx && " \
 		"run usb_to_ram_dtb && " \
@@ -204,6 +205,7 @@
 		"run crypto_verify_kernel && " \
 		"booti ${loadaddr_ram_kernel} - ${loadaddr_ram_dtb}\0" \
 	"boot_kernel_sata=" \
+		"pfe stop && " \
 		"run bootargs_set_rootfs && " \
 		"run bootargs_set_console && " \
 		"run bootargs_set_ccx && " \
