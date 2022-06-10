@@ -87,14 +87,14 @@ int pld_enable_reset_req(void)
 		return err;
 	}
 
-	i2c_reg_write(0x20, 0x02, 0x82);
-	if (i2c_reg_read(0x20, 0x28) != 0x00) {
+	i2c_reg_write(0x20, 0x02, 0x83);
+	if (i2c_reg_read(0x20, 0x02) != 0x83) {
 		printf("Failed to set direction on bank b.\n");
 		return err;
 	}
 
-	i2c_reg_write(0x20, 0x00, 0x49);
-	if ((i2c_reg_read(0x20, 0x00) & 0x49) != 0x49) {
+	i2c_reg_write(0x20, 0x00, 0x48);
+	if ((i2c_reg_read(0x20, 0x00) & 0x48) != 0x48) {
 		printf("Failed to release resets on bank b.\n");
 		return err;
 	}
