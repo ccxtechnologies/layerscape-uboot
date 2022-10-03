@@ -28,6 +28,7 @@
 #include <fsl_esdhc.h>
 #include <fsl_ifc.h>
 #include <spl.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -136,14 +137,22 @@ int pld_enable_reset_req(void)
 		return err;
 	}
 
-	i2c_reg_write(0x20, 0x02, 0x78);
-	if (i2c_reg_read(0x20, 0x78) != 0x00) {
+	i2c_reg_write(0x20, 0x02, 0x30);
+	if (i2c_reg_read(0x20, 0x02) != 0x30) {
 		printf("Failed to set direction on bank b.\n");
 		return err;
 	}
 
+	i2c_reg_write(0x20, 0x00, 0x08);
+	if ((i2c_reg_read(0x20, 0x00) & 0xcf) != 0x08) {
+		printf("Failed to set resets on bank b.\n");
+		return err;
+	}
+
+	mdelay(50);
+
 	i2c_reg_write(0x20, 0x00, 0x87);
-	if ((i2c_reg_read(0x20, 0x00) & 0x87) != 0x87) {
+	if ((i2c_reg_read(0x20, 0x00) & 0xcf) != 0x87) {
 		printf("Failed to release resets on bank b.\n");
 		return err;
 	}
