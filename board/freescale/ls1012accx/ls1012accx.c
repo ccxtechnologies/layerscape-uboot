@@ -45,6 +45,28 @@ int dram_init(void)
 	return 0;
 }
 
+int set_vbus_voltage(void)
+{
+	int err;
+
+	err = i2c_set_bus_num(0);
+	if (err < 0) {
+		printf("Failed to set I2C Bus to IIC1.\n");
+		return err;
+	}
+
+	i2c_reg_write(0x08, 0x66, 0x24);
+	if (i2c_reg_read(0x08, 0x66) != 0x24) {
+		printf("Failed to set USB VBUS Voltage to 6V.\n");
+		return err;
+	}
+
+	printf("USB VBUS: 5V\n");
+
+	return 0;
+}
+
+
 int pld_enable_reset_req(void)
 {
 	int err;
@@ -148,6 +170,11 @@ int misc_init_r(void)
 {
 	if (pld_enable_reset_req()) {
 		printf("Failed to enable reset PLD\n");
+		return -1;
+	}
+
+	if (set_vbus_voltage()) {
+		printf("Failed to set vbus voltage\n");
 		return -1;
 	}
 
