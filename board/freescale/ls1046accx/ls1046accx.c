@@ -130,30 +130,52 @@ int pld_enable_reset_req(void)
 			printf("Failed to re-set direction of bank a.\n");
 			return err;
 		}
+
+		i2c_reg_write(0x20, 0x02, 0x78);
+		if (i2c_reg_read(0x20, 0x02) != 0x78) {
+			printf("Failed to set direction on bank b.\n");
+			return err;
+		}
+
+		i2c_reg_write(0x20, 0x00, 0x00);
+		if ((i2c_reg_read(0x20, 0x00) & 0x87) != 0x00) {
+			printf("Failed to set resets on bank b.\n");
+			return err;
+		}
+
+		mdelay(50);
+
+		i2c_reg_write(0x20, 0x00, 0x87);
+		if ((i2c_reg_read(0x20, 0x00) & 0x87) != 0x87) {
+			printf("Failed to release resets on bank b.\n");
+			return err;
+		}
+
 	} else if (banka_value == 0xf0) {
 		printf("Mainboard: Revision >= D\n");
+
+		i2c_reg_write(0x20, 0x02, 0x30);
+		if (i2c_reg_read(0x20, 0x02) != 0x30) {
+			printf("Failed to set direction on bank b.\n");
+			return err;
+		}
+
+		i2c_reg_write(0x20, 0x00, 0x08);
+		if ((i2c_reg_read(0x20, 0x00) & 0xcf) != 0x08) {
+			printf("Failed to set resets on bank b.\n");
+			return err;
+		}
+
+		mdelay(50);
+
+		i2c_reg_write(0x20, 0x00, 0x87);
+		if ((i2c_reg_read(0x20, 0x00) & 0xcf) != 0x87) {
+			printf("Failed to release resets on bank b.\n");
+			return err;
+		}
+
 	} else {
-		printf("Failed to value of bank a.\n");
-		return err;
-	}
-
-	i2c_reg_write(0x20, 0x02, 0x30);
-	if (i2c_reg_read(0x20, 0x02) != 0x30) {
-		printf("Failed to set direction on bank b.\n");
-		return err;
-	}
-
-	i2c_reg_write(0x20, 0x00, 0x08);
-	if ((i2c_reg_read(0x20, 0x00) & 0xcf) != 0x08) {
-		printf("Failed to set resets on bank b.\n");
-		return err;
-	}
-
-	mdelay(50);
-
-	i2c_reg_write(0x20, 0x00, 0x87);
-	if ((i2c_reg_read(0x20, 0x00) & 0xcf) != 0x87) {
-		printf("Failed to release resets on bank b.\n");
+		printf("Failed to read value of bank a.\n");
 		return err;
 	}
 
