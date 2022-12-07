@@ -27,6 +27,7 @@
 #include <env_internal.h>
 #include <fsl_mmdc.h>
 #include <netdev.h>
+#include <linux/delay.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -109,15 +110,35 @@ int pld_enable_reset_req(void)
 		return err;
 	}
 
-	i2c_reg_write(0x20, 0x02, 0x93);
-	if (i2c_reg_read(0x20, 0x02) != 0x83) {
+	i2c_reg_write(0x20, 0x02, 0x92);
+	if (i2c_reg_read(0x20, 0x02) != 0x92) {
 		printf("Failed to set direction on bank b.\n");
 		return err;
 	}
 
-	i2c_reg_write(0x20, 0x00, 0x48);
+	i2c_reg_write(0x20, 0x00, 0x01);
+	if ((i2c_reg_read(0x20, 0x00) & 0x08) != 0x00) {
+		printf("Failed to set resets on bank b.\n");
+		return err;
+	}
+
+	i2c_reg_write(0x20, 0x01, 0xcf);
+	if ((i2c_reg_read(0x20, 0x01) & 0x30) != 0x00) {
+		printf("Failed to set resets on bank a.\n");
+		return err;
+	}
+
+	mdelay(50);
+
+	i2c_reg_write(0x20, 0x00, 0x49);
 	if ((i2c_reg_read(0x20, 0x00) & 0x48) != 0x48) {
 		printf("Failed to release resets on bank b.\n");
+		return err;
+	}
+
+	i2c_reg_write(0x20, 0x01, 0xff);
+	if ((i2c_reg_read(0x20, 0x01) & 0x30) != 0x30) {
+		printf("Failed to release resets on bank a.\n");
 		return err;
 	}
 
