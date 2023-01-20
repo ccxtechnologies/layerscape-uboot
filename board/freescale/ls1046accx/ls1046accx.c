@@ -58,6 +58,9 @@ void reset_plugin_phys(void)
 	out_be32(&pgpio->gpdir, val);
 
 	val = in_be32(&pgpio->gpdat);
+
+	setbits_be32(&pgpio->gpdat, val & ~MASK_ETH_PHY_RST);
+    mdelay(50);
 	setbits_be32(&pgpio->gpdat, val | MASK_ETH_PHY_RST);
 
 	printf("Plugin PHY Reset: complete\n");
