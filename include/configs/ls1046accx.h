@@ -15,7 +15,7 @@
 /* This should be incremented to force a firmware update, it isn't a
  * version inidicator but a compatibility indicator, this shouldn't
  * be updated on changes that don't break backwards compatibility */
-#define CCX_FIRMWARE_API_VERSION	"8"
+#define CCX_FIRMWARE_API_VERSION	"9"
 
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
