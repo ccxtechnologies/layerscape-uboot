@@ -59,10 +59,17 @@ int board_eth_init(struct bd_info *bis)
 	fm_info_set_phy_address(FM1_DTSEC9, SGMII_PHY3_ADDR);
 	fm_info_set_phy_address(FM1_DTSEC10, SGMII_PHY4_ADDR);
 
-	switch (srds_s1) {
+    switch (srds_s1) {
 	case 0x3333:
+		/* Default U-Boot behavior (1G SGMII) remains untouched */
 		break;
 	case 0x2223:
+		/* Force the relevant ports to 2.5G for this SerDes protocol */
+		printf("Configuring 2.5G SGMII Port");
+
+		fm_info_set_enet_if(FM1_DTSEC6, PHY_INTERFACE_MODE_SGMII_2500);
+		fm_info_set_enet_if(FM1_DTSEC9, PHY_INTERFACE_MODE_SGMII_2500);
+		fm_info_set_enet_if(FM1_DTSEC10, PHY_INTERFACE_MODE_SGMII_2500);
 		break;
 	default:
 		printf("Invalid SerDes protocol 0x%x\n", srds_s1);
