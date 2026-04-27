@@ -62,6 +62,8 @@ int board_eth_init(struct bd_info *bis)
 	switch (srds_s1) {
 	case 0x3333:
 		break;
+	case 0x2223:
+		break;
 	default:
 		printf("Invalid SerDes protocol 0x%x\n", srds_s1);
 		break;
@@ -115,6 +117,13 @@ int fdt_update_ethernet_dt(void *blob)
 		nodeoff = fdt_path_offset(blob, path);
 
 		switch (srds_s1) {
+		case 0x2223:
+			if (!strcmp(name, "ethernet0"))
+				fdt_status_disabled(blob, nodeoff);
+
+			if (!strcmp(name, "ethernet1"))
+				fdt_status_disabled(blob, nodeoff);
+		break;
 		case 0x3333:
 			if (!strcmp(name, "ethernet0"))
 				fdt_status_disabled(blob, nodeoff);

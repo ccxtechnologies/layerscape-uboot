@@ -162,8 +162,6 @@ int fdt_get_smmu_phandle(void *blob)
 
 	noff = fdt_node_offset_by_compatible(blob, -1, "arm,mmu-500");
 	if (noff < 0) {
-		printf("WARNING failed to get smmu node: %s\n",
-		       fdt_strerror(noff));
 		return noff;
 	}
 
