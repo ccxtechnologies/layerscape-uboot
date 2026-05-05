@@ -2,7 +2,7 @@
 /*
  * Copyright 2016 Freescale Semiconductor
  * Copyright 2019 NXP
- * Copyright 2022 CCX Technologies
+ * Copyright 2022-2026 CCX Technologies
  *
  */
 
@@ -15,7 +15,7 @@
 /* This should be incremented to force a firmware update, it isn't a
  * version inidicator but a compatibility indicator, this shouldn't
  * be updated on changes that don't break backwards compatibility */
-#define CCX_FIRMWARE_API_VERSION	"17"
+#define CCX_FIRMWARE_API_VERSION	"18"
 
 #define CONFIG_SYS_CLK_FREQ		100000000
 #define CONFIG_DDR_CLK_FREQ		100000000
@@ -83,7 +83,7 @@
 #define QSPI_NOR_BOOTCOMMAND "echo Hardware Development Mode"
 #else
 #undef SD_NOR_BOOTCOMMAND
-#define SD_NOR_BOOTCOMMAND "run system_boot"
+#define SD_NOR_BOOTCOMMAND "run system_boot_sdcard"
 #undef QSPI_NOR_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "run system_boot"
 #endif
@@ -275,6 +275,9 @@
 		"else " \
 			"echo Failed to find file firmware ${filename} && esbc_halt; " \
 		"fi\0" \
+	"system_boot_sdcard=" \
+		"run boot_kernel_loader; " \
+		"esbc_halt;\0" \
 	"system_boot=" \
 		"run system_get_ids; " \
 		"scsi rescan; " \
