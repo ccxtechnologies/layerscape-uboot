@@ -276,7 +276,7 @@
 			"echo Failed to find file firmware ${filename} && esbc_halt; " \
 		"fi\0" \
 	"system_boot_sdcard=" \
-		"run boot_kernel_loader; " \
+		"run boot_kernel_sdcard; " \
 		"esbc_halt;\0" \
 	"system_boot=" \
 		"run system_get_ids; " \
