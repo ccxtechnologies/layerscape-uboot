@@ -67,13 +67,13 @@
 
 
 #if defined(CONFIG_SYSTEMX_LOADER_FUSES)
-#undef SD_NOR_BOOTCOMMAND
-#define SD_NOR_BOOTCOMMAND "run system_fuse"
+#undef SD_BOOTCOMMAND
+#define SD_BOOTCOMMAND "run system_fuse"
 #undef QSPI_NOR_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "run system_fuse"
 #elif defined(CONFIG_SYSTEMX_LOADER_LOAD)
-#undef SD_NOR_BOOTCOMMAND
-#define SD_NOR_BOOTCOMMAND "run system_load"
+#undef SD_BOOTCOMMAND
+#define SD_BOOTCOMMAND "run system_load"
 #undef QSPI_NOR_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "run system_load"
 #elif defined(CONFIG_SYSTEMX_LOADER_NONE)
@@ -82,8 +82,8 @@
 #undef QSPI_NOR_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "echo Hardware Development Mode"
 #else
-#undef SD_NOR_BOOTCOMMAND
-#define SD_NOR_BOOTCOMMAND "run system_boot_sdcard"
+#undef SD_BOOTCOMMAND
+#define SD_BOOTCOMMAND "run system_boot_sdcard"
 #undef QSPI_NOR_BOOTCOMMAND
 #define QSPI_NOR_BOOTCOMMAND "run system_boot"
 #endif
