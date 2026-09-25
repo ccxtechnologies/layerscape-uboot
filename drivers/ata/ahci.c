@@ -703,6 +703,8 @@ static int ahci_device_data_io(struct ahci_uc_priv *uc_priv, u8 port, u8 *fis,
 
 	writel_with_flush(1, port_mmio + PORT_CMD_ISSUE);
 
+	dump_sata_phy_diagnostics(uc_priv, port);
+
 	if (waiting_for_cmd_completed(port_mmio + PORT_CMD_ISSUE,
 				WAIT_MS_DATAIO, 0x1)) {
 		dump_sata_phy_diagnostics(uc_priv, port);			
