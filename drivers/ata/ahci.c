@@ -631,6 +631,43 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	return wait_spinup(port_mmio);
 }
 
+static void dump_sata_phy_diagnostics(struct ahci_uc_priv *uc_priv, u8 port)
+{
+	struct ahci_ioports *pp = &(uc_priv->port[port]);
+	void __iomem *port_mmio = pp->port_mmio;
+
+	u32 ssts = readl(port_mmio + PORT_SCR_STAT);
+	u32 sctl = readl(port_mmio + PORT_SCR_CTL);
+	u32 serr = readl(port_mmio + PORT_SCR_ERR);
+	u32 tfd  = readl(port_mmio + PORT_TFDATA);
+	u32 is   = readl(port_mmio + PORT_IRQ_STAT);
+	u32 cmd  = readl(port_mmio + PORT_CMD);
+	u32 ci   = readl(port_mmio + PORT_CMD_ISSUE);
+
+	printf("\n==================================================\n");
+	printf("=== SATA PORT %d PHY & LINK DEBUG LOGS ===\n", port);
+	printf("==================================================\n");
+	printf("SSTS  (SATA Status)      : 0x%08x\n", ssts);
+	printf("  -> Device Detection    : 0x%x (%s)\n",
+	       ssts & 0xf, (ssts & 0xf) == 3 ? "Device PHY Ready" : "No Device / In Reset");
+	printf("  -> Interface Speed     : 0x%x (%s)\n",
+	       (ssts >> 4) & 0xf,
+	       ((ssts >> 4) & 0xf) == 3 ? "6.0 Gbps (Gen3)" :
+	       ((ssts >> 4) & 0xf) == 2 ? "3.0 Gbps (Gen2)" :
+	       ((ssts >> 4) & 0xf) == 1 ? "1.5 Gbps (Gen1)" : "Unknown/No Link");
+	printf("SERR  (SATA Error Reg)   : 0x%08x\n", serr);
+	printf("  -> 10B/8B Decode Error : %s\n", (serr & (1 << 8)) ? "YES (Signal Corrupted!)" : "No");
+	printf("  -> Disparity Error     : %s\n", (serr & (1 << 9)) ? "YES (Signal Corrupted!)" : "No");
+	printf("  -> CRC / Handshake Err : %s\n", (serr & (1 << 26)) ? "YES (Bad CRC!)" : "No");
+	printf("SCTL  (SATA Control)     : 0x%08x\n", sctl);
+	printf("PxTFD (Task File Data)   : 0x%08x (Status: 0x%02x, Error: 0x%02x)\n",
+	       tfd, tfd & 0xff, (tfd >> 8) & 0xff);
+	printf("  -> Drive BSY Bit       : %s\n", (tfd & 0x80) ? "STUCK BUSY" : "Ready");
+	printf("PxIS  (Interrupt Status) : 0x%08x\n", is);
+	printf("PxCMD (Port Command)     : 0x%08x\n", cmd);
+	printf("PxCI  (Command Issue)    : 0x%08x\n", ci);
+	printf("==================================================\n\n");
+}
 
 static int ahci_device_data_io(struct ahci_uc_priv *uc_priv, u8 port, u8 *fis,
 			       int fis_len, u8 *buf, int buf_len, u8 is_write)
@@ -668,6 +705,7 @@ static int ahci_device_data_io(struct ahci_uc_priv *uc_priv, u8 port, u8 *fis,
 
 	if (waiting_for_cmd_completed(port_mmio + PORT_CMD_ISSUE,
 				WAIT_MS_DATAIO, 0x1)) {
+		dump_sata_phy_diagnostics(uc_priv, port);			
 		printf("timeout exit!\n");
 		return -1;
 	}
