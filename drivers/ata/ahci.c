@@ -656,8 +656,8 @@ static void dump_sata_phy_diagnostics(struct ahci_uc_priv *uc_priv, u8 port)
 	       ((ssts >> 4) & 0xf) == 2 ? "3.0 Gbps (Gen2)" :
 	       ((ssts >> 4) & 0xf) == 1 ? "1.5 Gbps (Gen1)" : "Unknown/No Link");
 	printf("SERR  (SATA Error Reg)   : 0x%08x\n", serr);
-	printf("  -> 10B/8B Decode Error : %s\n", (serr & (1 << 8)) ? "YES (Signal Corrupted!)" : "No");
-	printf("  -> Disparity Error     : %s\n", (serr & (1 << 9)) ? "YES (Signal Corrupted!)" : "No");
+	printf("  -> 10B/8B Decode Error : %s\n", (serr & (1 << 20)) ? "YES (Signal Corrupted!)" : "No");
+	printf("  -> Disparity Error     : %s\n", (serr & (1 << 19)) ? "YES (Signal Corrupted!)" : "No");
 	printf("  -> CRC / Handshake Err : %s\n", (serr & (1 << 26)) ? "YES (Bad CRC!)" : "No");
 	printf("SCTL  (SATA Control)     : 0x%08x\n", sctl);
 	printf("PxTFD (Task File Data)   : 0x%08x (Status: 0x%02x, Error: 0x%02x)\n",
