@@ -279,16 +279,35 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 
 		debug("Spinning up device on SATA port %d... ", i);
 
+		// j = 0;
+		// while (j < WAIT_MS_SPINUP) {
+		// 	tmp = readl(port_mmio + PORT_TFDATA);
+		// 	if (!(tmp & (ATA_BUSY | ATA_DRQ)))
+		// 		break;
+		// 	udelay(1000);
+		// 	tmp = readl(port_mmio + PORT_SCR_STAT);
+		// 	tmp &= PORT_SCR_STAT_DET_MASK;
+		// 	if (tmp == PORT_SCR_STAT_DET_PHYRDY)
+		// 		break; //why is this also "breaking"?
+		// 	j++;
+		// }
+
 		j = 0;
 		while (j < WAIT_MS_SPINUP) {
-			tmp = readl(port_mmio + PORT_TFDATA);
-			if (!(tmp & (ATA_BUSY | ATA_DRQ)))
-				break;
+			/* Step 1: Read Physical Link Status */
+			tmp = readl(port_mmio + PORT_SCR_STAT) & PORT_SCR_STAT_DET_MASK;
+
+			/* Step 2: Only inspect drive status IF the PHY link is locked (0x3) */
+			if (tmp == PORT_SCR_STAT_DET_PHYRDY) {
+				/* Step 3: Read Task File Data (Drive status) */
+				tmp = readl(port_mmio + PORT_TFDATA);
+
+				/* Step 4: ONLY exit when drive is not busy and ready (0x50 state) */
+				if (!(tmp & (ATA_BUSY | ATA_DRQ)))
+					break;
+			}
+
 			udelay(1000);
-			tmp = readl(port_mmio + PORT_SCR_STAT);
-			tmp &= PORT_SCR_STAT_DET_MASK;
-			if (tmp == PORT_SCR_STAT_DET_PHYRDY)
-				break;
 			j++;
 		}
 
