@@ -263,8 +263,14 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 		cmd |= PORT_CMD_SPIN_UP;
 		writel_with_flush(cmd, port_mmio + PORT_CMD);
 
+		/* Benchmark Start */
+		ulong t_start, t_phy, t_fw;
+		u32 tfdata;
+		t_start = get_timer(0);
+
 		/* Bring up SATA link. */
 		ret = ahci_link_up(uc_priv, i);
+		t_phy = get_timer(t_start); /* Capture PHY lock time */
 		if (ret) {
 			printf("SATA link %d timeout.\n", i);
 			continue;
@@ -292,24 +298,47 @@ static int ahci_host_init(struct ahci_uc_priv *uc_priv)
 		// 	j++;
 		// }
 
+		printf("\n[SATA TIMING BENCHMARK Port %d]\n", i);
+		printf(" -> PHY Link Locked (PHYRDY) in: %lu ms\n", t_phy);
+
+		// j = 0;
+		// while (j < WAIT_MS_SPINUP) {
+		// 	tmp = readl(port_mmio + PORT_SCR_STAT) & PORT_SCR_STAT_DET_MASK;
+
+		// 	if (tmp == PORT_SCR_STAT_DET_PHYRDY) {
+		// 		tmp = readl(port_mmio + PORT_TFDATA);
+		// 		if (!(tmp & (ATA_BUSY | ATA_DRQ)))
+		// 			break;
+		// 	}
+
+		// 	udelay(1000);
+		// 	j++;
+		// }
+
 		j = 0;
-		while (j < WAIT_MS_SPINUP) {
-			/* Step 1: Read Physical Link Status */
-			tmp = readl(port_mmio + PORT_SCR_STAT) & PORT_SCR_STAT_DET_MASK;
+        while (j < WAIT_MS_SPINUP) {
+            tmp = readl(port_mmio + PORT_SCR_STAT) & PORT_SCR_STAT_DET_MASK;
 
-			/* Step 2: Only inspect drive status IF the PHY link is locked (0x3) */
-			if (tmp == PORT_SCR_STAT_DET_PHYRDY) {
-				/* Step 3: Read Task File Data (Drive status) */
-				tmp = readl(port_mmio + PORT_TFDATA);
+            if (tmp == PORT_SCR_STAT_DET_PHYRDY) {
+                tfdata = readl(port_mmio + PORT_TFDATA);
 
-				/* Step 4: ONLY exit when drive is not busy and ready (0x50 state) */
-				if (!(tmp & (ATA_BUSY | ATA_DRQ)))
-					break;
-			}
+                /* Log the initial state on boot */
+                if (j == 0) {
+                    printf(" -> Initial Task File Data at PHY Lock: 0x%08x\n", tfdata);
+                }
 
-			udelay(1000);
-			j++;
-		}
+                /* ONLY exit when drive is not busy and ready */
+                if (!(tfdata & (ATA_BUSY | ATA_DRQ))) {
+                    t_fw = get_timer(t_start); /* Capture total firmware boot time */
+                    printf(" -> FW Boot Completed (Ready State 0x%02x) in loop pass: %d (Total time: %lu ms)\n\n",
+                           tfdata & 0xff, j, t_fw);
+                    break;
+                }
+            }
+
+            udelay(1000);
+            j++;
+        }
 
 		tmp = readl(port_mmio + PORT_SCR_STAT) & PORT_SCR_STAT_DET_MASK;
 		if (tmp == PORT_SCR_STAT_DET_COMINIT) {
