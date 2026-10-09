@@ -642,8 +642,8 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	       PORT_CMD_POWER_ON | PORT_CMD_SPIN_UP;
 	writel_with_flush(cmd, port_mmio + PORT_CMD);
 
-	/* Wait up to 10 seconds for drive readiness before activating port */
-	if (ahci_wait_ready(port_mmio, 10000)) {
+	/* Wait up to 20 seconds for drive readiness before activating port */
+	if (ahci_wait_ready(port_mmio,20000)) {
 		printf("AHCI Port %d timeout waiting for readiness\n", port);
 		return -ETIMEDOUT;
 	}
