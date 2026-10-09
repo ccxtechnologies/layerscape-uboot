@@ -581,6 +581,7 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	u64 dma_addr;
 	u32 port_status;
 	void __iomem *mem;
+	u32 cmd;
 
 	debug("Enter start port: %d\n", port);
 	port_status = readl(port_mmio + PORT_SCR_STAT);
