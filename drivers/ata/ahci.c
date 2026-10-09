@@ -557,6 +557,23 @@ static int wait_spinup(void __iomem *port_mmio)
 	return -ETIMEDOUT;
 }
 
+static int ahci_wait_ready(void __iomem *port_mmio, int timeout_ms)
+{
+	ulong start = get_timer(0);
+	u32 tf_data;
+
+	while (1) {
+		tf_data = readl(port_mmio + PORT_TFDATA);
+		if (!(tf_data & (ATA_BUSY | ATA_DRQ)))
+			return 0;
+
+		if (get_timer(start) > timeout_ms)
+			return -ETIMEDOUT;
+		
+		mdelay(1);
+	}
+}
+
 static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 {
 	struct ahci_ioports *pp = &(uc_priv->port[port]);
@@ -618,9 +635,20 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	sunxi_dma_init(port_mmio);
 #endif
 
-	writel_with_flush(PORT_CMD_ICC_ACTIVE | PORT_CMD_FIS_RX |
-			  PORT_CMD_POWER_ON | PORT_CMD_SPIN_UP |
-			  PORT_CMD_START, port_mmio + PORT_CMD);
+	/*Power on port and enable FIS RX so we can receive the ready signal */
+	cmd = readl(port_mmio + PORT_CMD);
+	cmd |= PORT_CMD_ICC_ACTIVE | PORT_CMD_FIS_RX |
+	       PORT_CMD_POWER_ON | PORT_CMD_SPIN_UP;
+	writel_with_flush(cmd, port_mmio + PORT_CMD);
+
+	/* Wait up to 10 seconds for drive readiness before activating port */
+	if (ahci_wait_ready(port_mmio, 10000)) {
+		printf("AHCI Port %d timeout waiting for readiness\n", port);
+		return -ETIMEDOUT;
+	}
+
+	cmd |= PORT_CMD_START;
+	writel_with_flush(cmd, port_mmio + PORT_CMD);
 
 	debug("Exit start port %d\n", port);
 
