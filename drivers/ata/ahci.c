@@ -550,10 +550,13 @@ static int wait_spinup(void __iomem *port_mmio)
 	start = get_timer(0);
 	do {
 		tf_data = readl(port_mmio + PORT_TFDATA);
-		if (!(tf_data & (ATA_BUSY | ATA_DRQ)))
+		if (!(tf_data & ATA_BUSY))
 			return 0;
+		
+		mdelay(1);
 	} while (get_timer(start) < WAIT_MS_SPINUP);
 
+	printf("wait_spinup: Timeout! tf_data = 0x%08x\n", tf_data);
 	return -ETIMEDOUT;
 }
 
@@ -620,9 +623,14 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 #endif
 
 	cmd = readl(port_mmio + PORT_CMD);
+	debug("ahci_port_start: CMD before FIS_RX = 0x%08x, TFDATA = 0x%08x\n", 
+          cmd, readl(port_mmio + PORT_TFDATA));
 	cmd |= PORT_CMD_ICC_ACTIVE | PORT_CMD_FIS_RX |
 	       PORT_CMD_POWER_ON | PORT_CMD_SPIN_UP;
 	writel_with_flush(cmd, port_mmio + PORT_CMD);
+
+	debug("ahci_port_start: CMD after FIS_RX = 0x%08x, TFDATA = 0x%08x\n", 
+          readl(port_mmio + PORT_CMD), readl(port_mmio + PORT_TFDATA));
 
 	/*
 	 * Make sure the drive is not busy before proceeding to activate the DMA
@@ -632,8 +640,14 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 		return -ETIMEDOUT;
 	}
 
+	debug("ahci_port_start: TFDATA after wait_spinup = 0x%08x\n", 
+          readl(port_mmio + PORT_TFDATA));
+
 	cmd |= PORT_CMD_START;
 	writel_with_flush(cmd, port_mmio + PORT_CMD);
+
+	debug("ahci_port_start: CMD after START = 0x%08x\n", 
+          readl(port_mmio + PORT_CMD));
 
 	debug("Exit start port %d\n", port);
 
