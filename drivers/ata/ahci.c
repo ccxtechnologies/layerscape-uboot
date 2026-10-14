@@ -559,19 +559,19 @@ static int wait_spinup(void __iomem *port_mmio)
 
 static int ahci_wait_ready(void __iomem *port_mmio, int timeout_ms)
 {
-	ulong start = get_timer(0);
+	ulong start;
 	u32 tf_data;
 
-	while (1) {
+	start = get_timer(0);
+	do {
 		tf_data = readl(port_mmio + PORT_TFDATA);
 		if (!(tf_data & (ATA_BUSY | ATA_DRQ)))
 			return 0;
-
-		if (get_timer(start) > timeout_ms)
-			return -ETIMEDOUT;
 		
-		mdelay(1);
-	}
+			mdelay(1);
+	} while (get_timer(start) < timeout_ms);
+
+	return -ETIMEDOUT;
 }
 
 static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
@@ -636,7 +636,6 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	sunxi_dma_init(port_mmio);
 #endif
 
-	/*Power on port and enable FIS RX so we can receive the ready signal */
 	cmd = readl(port_mmio + PORT_CMD);
 	cmd |= PORT_CMD_ICC_ACTIVE | PORT_CMD_FIS_RX |
 	       PORT_CMD_POWER_ON | PORT_CMD_SPIN_UP;
