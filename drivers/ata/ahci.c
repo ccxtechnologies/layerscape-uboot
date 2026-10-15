@@ -546,14 +546,19 @@ static int wait_spinup(void __iomem *port_mmio)
 {
 	ulong start;
 	u32 tf_data;
+	u8 status;
 
 	start = get_timer(0);
 	do {
 		tf_data = readl(port_mmio + PORT_TFDATA);
-		if (!(tf_data & ATA_BUSY))
-			printf("wait_spinup DONE: tf_data = 0x%08x after %lu ms\n", 
-                   tf_data, get_timer(start));
-			return 0;
+		status = tf_data & 0xff;
+
+		/* 
+         * 0x7f is the phantom electrical state (floating bus). 
+         * Do not evaluate BSY while the hardware is in this state.
+         */
+		if (status != 0x7f && !(status & ATA_BUSY))
+            return 0;
 		
 		mdelay(1);
 	} while (get_timer(start) < WAIT_MS_SPINUP);
@@ -635,9 +640,6 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 		printf("AHCI Port %d timeout waiting for drive to be ready.\n", port);
 		return -ETIMEDOUT;
 	}
-
-	printf("ahci_port_start: TFDATA after wait_spinup = 0x%08x\n", 
-           readl(port_mmio + PORT_TFDATA));
 
 	cmd |= PORT_CMD_START;
 	writel_with_flush(cmd, port_mmio + PORT_CMD);
