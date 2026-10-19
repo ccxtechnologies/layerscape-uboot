@@ -551,7 +551,7 @@ static int wait_spinup(void __iomem *port_mmio)
 	do {
 		tf_data = readl(port_mmio + PORT_TFDATA);
 
-		if ((tf_data & 0xff) != PORT_TFDATA_RESET && !(tf_data & ATA_BUSY))
+		if ((tf_data & 0xff) != PORT_TFDATA_RESET_BUSY && !(tf_data & ATA_BUSY))
             return 0;
 
 	} while (get_timer(start) < WAIT_MS_SPINUP);
