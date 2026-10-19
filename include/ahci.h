@@ -49,6 +49,7 @@
 #define PORT_IRQ_MASK		0x14 /* interrupt enable/disable mask */
 #define PORT_CMD		0x18 /* port command */
 #define PORT_TFDATA		0x20 /* taskfile data */
+#define PORT_TFDATA_RESET_BUSY	0x7f /* waiting for D2H */
 #define PORT_SIG		0x24 /* device TF signature */
 #define PORT_CMD_ISSUE		0x38 /* command issue */
 #define PORT_SCR		0x28 /* SATA phy register block */

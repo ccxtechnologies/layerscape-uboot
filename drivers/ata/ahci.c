@@ -550,8 +550,10 @@ static int wait_spinup(void __iomem *port_mmio)
 	start = get_timer(0);
 	do {
 		tf_data = readl(port_mmio + PORT_TFDATA);
-		if (!(tf_data & ATA_BUSY))
-			return 0;
+
+		if ((tf_data & 0xff) != PORT_TFDATA_RESET && !(tf_data & ATA_BUSY))
+            return 0;
+
 	} while (get_timer(start) < WAIT_MS_SPINUP);
 
 	return -ETIMEDOUT;
@@ -564,6 +566,7 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	u64 dma_addr;
 	u32 port_status;
 	void __iomem *mem;
+	u32 cmd;
 
 	debug("Enter start port: %d\n", port);
 	port_status = readl(port_mmio + PORT_SCR_STAT);
@@ -618,17 +621,25 @@ static int ahci_port_start(struct ahci_uc_priv *uc_priv, u8 port)
 	sunxi_dma_init(port_mmio);
 #endif
 
-	writel_with_flush(PORT_CMD_ICC_ACTIVE | PORT_CMD_FIS_RX |
-			  PORT_CMD_POWER_ON | PORT_CMD_SPIN_UP |
-			  PORT_CMD_START, port_mmio + PORT_CMD);
+	cmd = readl(port_mmio + PORT_CMD);
+	cmd |= PORT_CMD_ICC_ACTIVE | PORT_CMD_FIS_RX |
+	       PORT_CMD_POWER_ON | PORT_CMD_SPIN_UP;
+	writel_with_flush(cmd, port_mmio + PORT_CMD);
+
+	/*
+	 * Make sure the drive is not busy before proceeding to activate the DMA
+	 */
+	if (wait_spinup(port_mmio)) {
+		printf("AHCI Port %d timeout waiting for drive to be ready.\n", port);
+		return -ETIMEDOUT;
+	}
+
+	cmd |= PORT_CMD_START;
+	writel_with_flush(cmd, port_mmio + PORT_CMD);
 
 	debug("Exit start port %d\n", port);
 
-	/*
-	 * Make sure interface is not busy based on error and status
-	 * information from task file data register before proceeding
-	 */
-	return wait_spinup(port_mmio);
+    return 0;
 }
 
 
