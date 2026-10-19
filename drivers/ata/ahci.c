@@ -546,21 +546,14 @@ static int wait_spinup(void __iomem *port_mmio)
 {
 	ulong start;
 	u32 tf_data;
-	u8 status;
 
 	start = get_timer(0);
 	do {
 		tf_data = readl(port_mmio + PORT_TFDATA);
-		status = tf_data & 0xff;
 
-		/* 
-         * 0x7f is the phantom electrical state (floating bus). 
-         * Do not evaluate BSY while the hardware is in this state.
-         */
-		if (status != 0x7f && !(status & ATA_BUSY))
+		if ((tf_data & 0xff) != PORT_TFDATA_RESET && !(tf_data & ATA_BUSY))
             return 0;
-		
-		mdelay(1);
+
 	} while (get_timer(start) < WAIT_MS_SPINUP);
 
 	return -ETIMEDOUT;
